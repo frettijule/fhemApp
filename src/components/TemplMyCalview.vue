@@ -52,6 +52,7 @@
         <v-row
           v-for="dayitem in vals.calview"
           :key="dayitem.iCounter"
+          :class="dayitem.iColor"
           align="center"
         >
             <v-col class="col-3"
@@ -75,20 +76,24 @@
 
       <v-divider />
       <v-system-bar color="secondary darken-1">
-        <v-spacer />
-        NextEvent
-        <v-spacer />
         <v-tooltip bottom>
           <template v-slot:activator="{ on, attrs }">
             <v-icon
               v-bind="attrs"
               v-on="on"
             >
-              
+              {{ vals.systemItemValues }}
             </v-icon>
           </template>
-          
+          Termine: heute/morgen
         </v-tooltip>
+        <v-spacer />
+        {{ vals.systemLastEvent }}
+        <v-spacer />
+          <v-icon>
+              {{ vals.systemActivityIcon }}
+            </v-icon>
+          
       </v-system-bar>
     </v-card>
   </v-col>
@@ -112,12 +117,15 @@
       },
       apiSet: {
         CALVIEW: {
-            cItemCount: 'c-term',
-            cItemTodayCount: 'c-today',
-            cItemTomorrowCount: 'c-tomorrow',
-            cBeginDate: '_bdate',
-            cBeginTime: '_btime',
-            cDescription: '_summary'
+          lastUpdate: 'lastUpdate',
+          cItemCount: 'c-term',
+          cItemTodayCount: 'c-today',
+          cItemTomorrowCount: 'c-tomorrow',
+          cBeginDate: '_bdate',
+          cBeginTime: '_btime',
+          cDescription: '_summary',
+          cDaysLeft: '_daysleft'
+          
         }
       },
       vals: {
@@ -131,6 +139,8 @@
         vBeginDate: '',
         itemCount: '',
         itemTodayCount: '',
+        itemTomorrowCount: '',
+        systemItemValues: '',
         systemLastEvent: '',
         calview: []
       },
@@ -146,15 +156,14 @@
         deep: true,
         handler(val) {
           this.type = this.$fhem.getEl(val, 'Internals', 'TYPE');
+          
 
-          let vDescription = this.$fhem.getEl(val, 'Readings', 't_001' + this.apiSet[this.type].cDescription, 'Value');
-          let vbegintime = this.$fhem.getEl(val, 'Readings', 't_001' + this.apiSet[this.type].cBeginTime, 'Value');
-          let vBeginDate = this.$fhem.getEl(val, 'Readings', 't_001' + this.apiSet[this.type].cBeginDate, 'Value');
-          let itemCount = this.$fhem.getEl(val, 'Readings', this.apiSet[this.type].cItemCount, 'Value');
-          let itemTodayCount = this.$fhem.getEl(val, 'Readings', this.apiSet[this.type].cItemTodayCount, 'Value');
+          let lastevent = this.$fhem.getEl(val, 'Readings', this.apiSet[this.type].lastUpdate, 'Time');
           let alias = this.$fhem.getEl(val, 'Attributes', 'alias') || val.Name;
           
-          let activity = this.$fhem.getEl(val, 'Readings', this.apiSet[this.type].lastUpdate, 'Value') || 'up-to-date';
+          console.log('LE: '+lastevent+' xx: '+ activity );
+
+          let activity = this.$fhem.getEl(val, 'Readings', this.apiSet[this.type].lastUpdate, 'Value') || 'not up-to-date';
           
           this.vals.title = this.$fhem.getEl(val, 'Options', 'name') || alias;
           this.vals.color1 = this.$fhem.getEl(val, 'Options', 'color1') || "gelb";
@@ -162,13 +171,21 @@
           this.vals.vBeginDate = this.$fhem.getEl(val, 'Readings', 't_001' + this.apiSet[this.type].cBeginDate, 'Value') || 'date';
           this.vals.vBeginTime = this.$fhem.getEl(val, 'Readings', 't_001' + this.apiSet[this.type].cBeginTime, 'Value') || 'time';
           this.vals.itemCount = this.$fhem.getEl(val, 'Readings', this.apiSet[this.type].cItemCount, 'Value') || 'icount';
-          this.vals.itemTodayCount = this.$fhem.getEl(val, 'Readings', this.apiSet[this.type].cItemTodayCount, 'Value') || 'icounttd';
+          this.vals.itemTodayCount = this.$fhem.getEl(val, 'Readings', this.apiSet[this.type].cItemTodayCount, 'Value') || 'td';
+          this.vals.itemTomorrowCount = this.$fhem.getEl(val, 'Readings', this.apiSet[this.type].cItemTomorrowCount, 'Value') || 'to';
 
-          if(this.type === 'CALVIEW') {
-            activity = 'up-to-date';
-          }
+          //if(this.type === 'CALVIEW') {
+            //activity = 'up-to-date';
+          //}
           
-          if(activity != 'up-to-date') {
+          this.vals.systemLastEvent = lastevent ? this.$fhem.getDateTime(lastevent) : 'no update time';
+          
+          console.log('LE:'+lastevent+'xx'+ activity + ' y: '+ this.$fhem.getDateTime(lastevent));
+          this.vals.systemItemValues = this.vals.itemTodayCount + '/' + this.vals.itemTomorrowCount;
+          this.vals.systemActivityIcon = activity === 'not up-to-date' ? 'mdi-sync-off' : 'mdi-sync';
+          this.vals.systemActivityState = activity;
+
+          if(activity == 'not up-to-date') {
             this.active = false;
             this.vals.mainLevel = 100;
             this.vals.mainColor = 'error';
@@ -193,13 +210,20 @@
         for(let i = 1; i <= this.vals.itemCount; i++) {
           let api = this.type || 'CALVIEW';
           let j = ("00000" + i).slice(-3);
+          let iDaysLeft = this.$fhem.getEl(this.item, 'Readings', 't_' + j + this.apiSet[api].cDaysLeft, 'Value') ||'t_' + j + 'daysleft';
+          console.log('daysleft ' + iDaysLeft);
+          let iColor='white--text text--darken-1';
+          if (iDaysLeft==1) 
+             iColor='red--text text--darken-1';
+          if (iDaysLeft==2) 
+             iColor='orange--text text--darken-1';
           let iDescription = this.$fhem.getEl(this.item, 'Readings', 't_' + j + this.apiSet[api].cDescription, 'Value') ||'t_' + j + 'des';
           let iBeginDateLfhem = this.$fhem.getEl(this.item, 'Readings', 't_' + j + this.apiSet[api].cBeginDate, 'Value') || i + 'date';
           let iBeginDateL=this.getStdDate(iBeginDateLfhem);
           let day=iBeginDateL.getDate();
           let month=iBeginDateL.getMonth();
           month=month+1;
-		  if((String(day)).length==1)
+		      if((String(day)).length==1)
              day='0'+day;
           if((String(month)).length==1)
               month='0'+month;
@@ -208,11 +232,14 @@
           if (iBeginTime === "00:00")
               iBeginTime=' '; 
           
+          console.log('color ' + iColor);
+
           let dayitem = {
             iCounter: j,
             iDescription,
             iBeginDate,
-            iBeginTime
+            iBeginTime,
+            iColor
           };
 
           this.vals.calview.push(dayitem);
