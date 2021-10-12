@@ -1,5 +1,7 @@
 <template>
-  <v-col class="col-12 col-sm-6 col-md-4 col-lg-4">
+  <v-col 
+    class="col-12 col-sm-6 col-md-4 col-lg-4"
+  >
     <v-card
       :dark="this.$vuetify.theme.dark"
       color="secondary"
@@ -11,7 +13,9 @@
         background-color="secondary darken-1"
       />
 
-      <v-card-title class="text-truncate">
+      <v-card-title 
+        class="text-truncate"
+      >
         <v-col>
           {{ vals.title }}
         </v-col>  
@@ -28,50 +32,68 @@
       </v-card-title>
       <v-divider />
 
-      <v-card-text>
+      <v-card-text
+        v-if="expanded==false"
+      >
         <v-row align="center">
-            <v-col v-if="vals.itemTodayCount == 0">
+            <v-col 
+              v-if="vals.itemTodayCount == 0"
+            >
               <span> Heute keine Termine </span>
             </v-col>
-            <v-col class="col-3" v-if="vals.itemTodayCount > 0">
+            <v-col 
+              class="col-3" 
+              v-if="(vals.itemTodayCount > 0) && (expanded==false)"
+            >
               <span>{{ vals.vBeginDate }} </span>
             </v-col>
-            <v-col class="col-3" v-if="vals.itemTodayCount > 0">
+            <v-col 
+              class="col-3" 
+              v-if="(vals.itemTodayCount > 0) && (expanded==false)"
+            >
               <span>{{ vals.vBeginTime }}</span>
             </v-col>
-            <v-col class="col-6" v-if="vals.itemTodayCount > 0">  
+            <v-col 
+              class="col-6" 
+              v-if="(vals.itemTodayCount > 0) && (expanded==false)"
+            >  
               <span>{{ vals.vDescription }}</span>
             </v-col>
         </v-row>
-
       </v-card-text>
 
-      <v-divider v-if="expanded" />
+      <v-divider 
+        v-if="expanded==false" 
+      />
 
-      <v-card-text v-if="expanded">
+      <v-card-text 
+        v-if="expanded"
+      >
         <v-row
           v-for="dayitem in vals.calview"
           :key="dayitem.iCounter"
           :class="dayitem.iColor"
           align="center"
         >
-            <v-col class="col-3"
+            <v-col 
+              class="col-3"
               align="left"
             >
               <span>{{ dayitem.iBeginDate }} </span>
             </v-col>
-            <v-col class="col-3"
+            <v-col 
+              class="col-3"
               align="left"
             >
               <span>{{ dayitem.iBeginTime }}</span>
             </v-col>
-            <v-col class="col-6 text-truncate"
+            <v-col 
+              class="col-6 text-truncate"
               align="left"
             >
               <span>{{ dayitem.iDescription }}</span>
             </v-col>
         </v-row>
-
       </v-card-text>
 
       <v-divider />
@@ -92,8 +114,7 @@
         <v-spacer />
           <v-icon>
               {{ vals.systemActivityIcon }}
-            </v-icon>
-          
+            </v-icon>    
       </v-system-bar>
     </v-card>
   </v-col>
