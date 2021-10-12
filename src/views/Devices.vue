@@ -20,6 +20,8 @@ export default {
     templ_panel: () => import('@/components/TemplPanel.vue'),
     templ_chart: () => import('@/components/TemplChart.vue'),
     templ_weather: () => import('@/components/TemplWeather.vue'),
+    templ_myweather: () => import('@/components/TemplMyWeather.vue'),
+    templ_mycalview: () => import('@/components/TemplMyCalview.vue'),
     templ_scenes: () => import('@/components/TemplScenes.vue'),
     templ_sonos: () => import('@/components/TemplSonos.vue'),
     templ_sysmon: () => import('@/components/TemplSysmon.vue'),

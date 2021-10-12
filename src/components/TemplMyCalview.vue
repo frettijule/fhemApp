@@ -33,13 +33,13 @@
             <v-col v-if="vals.itemTodayCount == 0">
               <span> Heute keine Termine </span>
             </v-col>
-            <v-col v-if="vals.itemTodayCount > 0">
+            <v-col class="col-3" v-if="vals.itemTodayCount > 0">
               <span>{{ vals.vBeginDate }} </span>
             </v-col>
-            <v-col v-if="vals.itemTodayCount > 0">
+            <v-col class="col-3" v-if="vals.itemTodayCount > 0">
               <span>{{ vals.vBeginTime }}</span>
             </v-col>
-            <v-col v-if="vals.itemTodayCount > 0">  
+            <v-col class="col-6" v-if="vals.itemTodayCount > 0">  
               <span>{{ vals.vDescription }}</span>
             </v-col>
         </v-row>
@@ -213,9 +213,9 @@
           let iDaysLeft = this.$fhem.getEl(this.item, 'Readings', 't_' + j + this.apiSet[api].cDaysLeft, 'Value') ||'t_' + j + 'daysleft';
           console.log('daysleft ' + iDaysLeft);
           let iColor='white--text text--darken-1';
-          if (iDaysLeft==1) 
+          if (iDaysLeft<1) 
              iColor='red--text text--darken-1';
-          if (iDaysLeft==2) 
+          if (iDaysLeft==1) 
              iColor='orange--text text--darken-1';
           let iDescription = this.$fhem.getEl(this.item, 'Readings', 't_' + j + this.apiSet[api].cDescription, 'Value') ||'t_' + j + 'des';
           let iBeginDateLfhem = this.$fhem.getEl(this.item, 'Readings', 't_' + j + this.apiSet[api].cBeginDate, 'Value') || i + 'date';

@@ -54,6 +54,8 @@ class Fhem extends EventEmitter {
         { name: 'panel', component: 'templ_panel' },
         { name: 'chart', component: 'templ_chart' },
         { name: 'weather', component: 'templ_weather' },
+        { name: 'my_weather', component: 'templ_myweather' },
+        { name: 'my_calview', component: 'templ_mycalview' },
         { name: 'sysmon', component: 'templ_sysmon' },
         { name: 'hmlan', component: 'templ_hmlan' },
         { name: 'sonos', component: 'templ_sonos' },
